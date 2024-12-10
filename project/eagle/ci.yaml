@@ -1,0 +1,48 @@
+include: "/project/eagle/variables.yaml"
+
+.build:
+  stage: build
+  tags:
+    - dev-group-runner
+  image:
+    name: $NODE_IMAGE
+  only:
+    - main
+    - master
+    - develop
+  when: manual
+  extends: [ .variables ]
+  cache:
+    key:
+      files:
+        - pnpm-lock.yaml
+    paths:
+      - .pnpm-store
+  before_script:
+    - npm config set registry https://registry.npmmirror.com/
+    - npm install -g pnpm
+    - pnpm config set store-dir .pnpm-store
+  script:
+    - pnpm install
+    - pnpm build --dest dist
+  artifacts:
+    expire_in: 10 minutes
+    paths:
+      - dist
+
+.image-build:
+  stage: image-build
+  tags:
+    - dev-group-runner
+  image:
+    name: $DOCKER_IMAGE
+  only:
+    - main
+    - master
+    - develop
+  extends: [ .variables ]
+  script:
+    - docker build -t $IMAGE_ADDRESS . --no-cache
+    - echo $DOCKER_PASSWORD | docker login $REGISTRY_ENDPOINT --username $DOCKER_USERNAME --password-stdin
+    - docker push $IMAGE_ADDRESS
+    - docker rmi $IMAGE_ADDRESS

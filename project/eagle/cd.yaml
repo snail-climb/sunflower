@@ -1,0 +1,13 @@
+include: "/project/eagle/variables.yaml"
+
+.deploy:
+  stage: deploy
+  tags:
+    - dev-group-runner
+  only:
+    - main
+    - master
+    - develop
+  extends: [ .variables ]
+  script:
+    - curl -X POST --fail -F token=$PIPELINE_TRIGGER_TOKEN -F ref=main -F variables[BRANCH]=$CI_COMMIT_BRANCH -F variables[NAME]=$IMAGE_NAME -F variables[IMAGE_ADDRESS]=$IMAGE_ADDRESS $PIPELINE_TRIGGER_URL
