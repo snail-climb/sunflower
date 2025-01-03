@@ -1,5 +1,8 @@
 .variables:
   variables:
+    MAVEN_URL: http://nexus.sky.org
+    MAVEN_USERNAME: nexus
+    MAVEN_PASSWORD: admin0527
     REGISTRY_ENDPOINT: harbor.sky.org
     REGISTRY_NAMESPACE: $CI_COMMIT_BRANCH
     DOCKER_USERNAME: harbor

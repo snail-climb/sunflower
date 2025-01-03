@@ -13,7 +13,7 @@ include: "/project/dolphin/variables.yaml"
   when: manual
   extends: [ .variables ]
   script:
-    - echo '<?xml version="1.0" encoding="UTF-8"?><settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>nexus</id><username>admin</username><password>Nexus123</password></server><server><id>nexus-releases</id><username>admin</username><password>Nexus123</password></server><server><id>nexus-snapshots</id><username>admin</username><password>Nexus123</password></server></servers><mirrors><mirror><id>aliyunmaven</id><mirrorOf>central</mirrorOf><name>阿里云公共仓库</name><url>https://maven.aliyun.com/repository/public</url></mirror><mirror><id>nexusmaven</id><mirrorOf>central</mirrorOf><name>私服仓库</name><url>http://10.12.35.113:8083/repository/maven-public/</url></mirror></mirrors></settings>' > settings.xml
+    - echo '<?xml version="1.0" encoding="UTF-8"?><settings xmlns="http://maven.apache.org/SETTINGS/1.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd"><servers><server><id>nexus</id><username>$MAVEN_USERNAME</username><password>$MAVEN_PASSWORD</password></server><server><id>nexus-releases</id><username>$MAVEN_USERNAME</username><password>$MAVEN_PASSWORD</password></server><server><id>nexus-snapshots</id><username>$MAVEN_USERNAME</username><password>$MAVEN_PASSWORD</password></server></servers><mirrors><mirror><id>maven-default-http-blocker</id><mirrorOf>!*</mirrorOf><url>http://0.0.0.0/</url></mirror><mirror><id>aliyunmaven</id><mirrorOf>central</mirrorOf><name>阿里云仓库</name><url>https://maven.aliyun.com/repository/public/</url></mirror><mirror><id>nexusmaven</id><mirrorOf>central</mirrorOf><name>私服仓库</name><url>$MAVEN_URL/repository/maven-public/</url></mirror></mirrors></settings>' > settings.xml
     - mvn clean package -Dmaven.repo.local=/root/.m2/repository -DskipTests -s settings.xml
   artifacts:
     expire_in: 10 minutes
@@ -37,6 +37,8 @@ include: "/project/dolphin/variables.yaml"
         SPRING_PROFILE="prod"
       elif [ "$CI_COMMIT_BRANCH" = "develop" ]; then
         SPRING_PROFILE="dev"
+      elif [ "$CI_COMMIT_BRANCH" = "gray" ]; then
+        SPRING_PROFILE="gray"
       else
         exit 1
       fi
