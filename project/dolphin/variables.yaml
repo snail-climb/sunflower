@@ -1,19 +1,25 @@
 .variables:
   variables:
+    # Maven 配置
     MAVEN_URL: http://nexus.sky.org
     MAVEN_USERNAME: nexus
     MAVEN_PASSWORD: admin0527
+    # Docker 配置
     REGISTRY_ENDPOINT: harbor.sky.org
     REGISTRY_NAMESPACE: $CI_COMMIT_BRANCH
     DOCKER_USERNAME: harbor
     DOCKER_PASSWORD: admin0527
+    # 镜像配置
     IMAGE_NAME: dolphin
     IMAGE_VERSION: $CI_PIPELINE_IID
     IMAGE_ADDRESS: $REGISTRY_ENDPOINT/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_VERSION
+    # GitLab 配置
     GITLAB_URL: http://gitlab.sky.org
+    TAG: gemini
     PROJECT_ID: 1
     PIPELINE_TRIGGER_URL: $GITLAB_URL/api/v4/projects/$PROJECT_ID/trigger/pipeline
     PIPELINE_TRIGGER_TOKEN: $PIPELINE_TRIGGER_TOKEN
+    # 特定镜像配置
     NODE_IMAGE: $REGISTRY_ENDPOINT/library/node:18
     MAVEN_IMAGE: $REGISTRY_ENDPOINT/library/maven:3.9.9-jdk21
     DOCKER_IMAGE: $REGISTRY_ENDPOINT/library/docker:26.1.4

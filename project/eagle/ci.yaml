@@ -1,15 +1,16 @@
 include: "/project/eagle/variables.yaml"
 
-.build:
-  stage: build
+.code-build:
+  stage: code-build
   tags:
-    - dev-group-runner
+    - $TAG
   image:
     name: $NODE_IMAGE
-  only:
-    - main
-    - master
-    - develop
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "gray"'
   when: manual
   extends: [ .variables ]
   cache:
@@ -33,16 +34,17 @@ include: "/project/eagle/variables.yaml"
 .image-build:
   stage: image-build
   tags:
-    - dev-group-runner
+    - $TAG
   image:
     name: $DOCKER_IMAGE
-  only:
-    - main
-    - master
-    - develop
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "gray"'
   extends: [ .variables ]
   script:
-    - docker build -t $IMAGE_ADDRESS . --no-cache
+    - docker build -t $IMAGE_ADDRESS
     - echo $DOCKER_PASSWORD | docker login $REGISTRY_ENDPOINT --username $DOCKER_USERNAME --password-stdin
     - docker push $IMAGE_ADDRESS
     - docker rmi $IMAGE_ADDRESS
