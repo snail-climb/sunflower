@@ -3,7 +3,7 @@ include: "/project/dolphin/variables.yaml"
 .code-build:
   stage: code-build
   tags:
-    - $TAG
+    - $CI_TAG
   image:
     name: $MAVEN_IMAGE
   rules:
@@ -24,7 +24,7 @@ include: "/project/dolphin/variables.yaml"
 .image-build:
   stage: image-build
   tags:
-    - $TAG
+    - $CI_TAG
   image:
     name: $DOCKER_IMAGE
   rules:

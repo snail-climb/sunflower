@@ -13,9 +13,11 @@
     IMAGE_NAME: dolphin
     IMAGE_VERSION: $CI_PIPELINE_IID
     IMAGE_ADDRESS: $REGISTRY_ENDPOINT/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_VERSION
-    # GitLab 配置
+    IMAGE_PORT: 3000:3000
+    # GitLab 配置 (非 third-party-deploy, 无需配置)
     GITLAB_URL: http://gitlab.sky.org
-    TAG: gemini
+    CI_TAG: gemini_ci
+    CD_TAG: gemini_cd
     PROJECT_ID: 1
     PIPELINE_TRIGGER_URL: $GITLAB_URL/api/v4/projects/$PROJECT_ID/trigger/pipeline
     PIPELINE_TRIGGER_TOKEN: $PIPELINE_TRIGGER_TOKEN

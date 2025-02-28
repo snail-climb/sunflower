@@ -1,9 +1,24 @@
 include: "/project/dolphin/variables.yaml"
 
-.deploy:
-  stage: deploy
+.docker-deploy:
+  stage: docker-deploy
   tags:
-    - $TAG
+    - $CD_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "gray"'
+  extends: [ .variables ]
+  script:
+    - docker pull $IMAGE_ADDRESS
+    - docker rm -f $IMAGE_NAME || true
+    - docker run -d --name $IMAGE_NAME --restart always -p $IMAGE_PORT $IMAGE_ADDRESS
+
+.third-party-deploy:
+  stage: third-party-deploy
+  tags:
+    - $CD_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_COMMIT_BRANCH == "master"'
