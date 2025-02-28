@@ -22,7 +22,7 @@ project/
 
 ### 1. **变量配置**
 
-   在 variables.yaml 文件中配置项目部署所需的各类参数，包括 Maven 和 Docker 的认证信息、镜像相关配置，以及 GitLab CI/CD 流水线的触发设置。以下是 variables.yaml 的配置示例：
+   在 variables.yaml 文件中，配置项目部署所需的各类参数，包括 Maven 和 Docker 的认证信息、镜像相关配置，以及 GitLab CI/CD 流水线的触发设置。以下是 variables.yaml 的配置示例：
 
    ```yaml
    .variables:
@@ -60,7 +60,7 @@ project/
 
 ### 2. **CI 配置**
 
-   在 ci.yaml 文件中，配置了项目的构建阶段，具体包括以下流程：
+   在 ci.yaml 文件中，配置项目的构建阶段，具体包括以下流程：
 
    - 项目打包：
       - 针对后端项目，使用 Maven 完成构建与打包。
