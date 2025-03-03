@@ -22,11 +22,14 @@ project/
 
 ### 1. **变量配置**
 
-   在 variables.yaml 文件中，配置项目部署所需的各类参数，包括 Maven 和 Docker 的认证信息、镜像相关配置，以及 GitLab CI/CD 流水线的触发设置。以下是 variables.yaml 的配置示例：
+   在 variables.yaml 文件中，配置了项目部署所需的各类参数，包括 Maven 和 Docker 的认证信息、镜像设置、K8S 部署配置，以及 GitLab CI/CD 流水线的触发参数。以下是 variables.yaml 的示例配置：
 
    ```yaml
    .variables:
      variables:
+       # 项目名称
+       PROJECT_NAME: dolphin
+
        # Maven 配置
        MAVEN_URL: http://nexus.sky.org
        MAVEN_USERNAME: nexus
@@ -39,17 +42,27 @@ project/
        DOCKER_PASSWORD: admin0527
 
        # 镜像配置
-       IMAGE_NAME: dolphin
+       IMAGE_NAME: $REGISTRY_ENDPOINT/$REGISTRY_NAMESPACE/$PROJECT_NAME
        IMAGE_VERSION: $CI_PIPELINE_IID
-       IMAGE_ADDRESS: $REGISTRY_ENDPOINT/$REGISTRY_NAMESPACE/$IMAGE_NAME:$IMAGE_VERSION
+       IMAGE_ADDRESS: $IMAGE_NAME:$IMAGE_VERSION
        IMAGE_PORT: 3000:3000
 
-       # GitLab 配置 (非 third-party-deploy, 无需配置)
+       # K8S 配置 (非 K8S 环境部署, 无需配置)
+       K8S_URL: http://k8s.sky.org
+       K8S_CLUSTER_NAME: sky-k8s-cluster
+       K8S_NAMESPACE: $CI_COMMIT_BRANCH
+       K8S_DEPLOYMENT_NAME: $PROJECT_NAME-$CI_COMMIT_BRANCH
+       K8S_USERNAME: admin
+       K8S_ACCESS_KEY: xxxxxxxx.xxxxxxxxx
+       K8S_UPDATE_IMAGE_TAG_URL: $K8S_URL/kuboard-api/cluster/$K8S_CLUSTER_NAME/kind/CICDApi/admin/resource/updateImageTag
+       K8S_RESTART_WORK_LOAD_URL: $K8S_URL/kuboard-api/cluster/$K8S_CLUSTER_NAME/kind/CICDApi/admin/resource/restartWorkload
+
+       # GitLab 配置 (非 GitLab 触发器形式部署, 无需配置)
        GITLAB_URL: http://gitlab.sky.org
        CI_TAG: gemini_ci
        CD_TAG: gemini_cd
-       PROJECT_ID: 1
-       PIPELINE_TRIGGER_URL: $GITLAB_URL/api/v4/projects/$PROJECT_ID/trigger/pipeline
+       GITLAB_PROJECT_ID: 1
+       PIPELINE_TRIGGER_URL: $GITLAB_URL/api/v4/projects/$GITLAB_PROJECT_ID/trigger/pipeline
        PIPELINE_TRIGGER_TOKEN: $PIPELINE_TRIGGER_TOKEN
 
        # 特定镜像配置
@@ -77,6 +90,9 @@ project/
    - Docker 部署：
       - 使用 docker pull 命令拉取最新构建的 Docker 镜像。
       - 使用 docker run 命令启动镜像，并在 Docker 容器中运行应用，设置自动重启和端口映射。
+   - K8S 部署：
+      - 通过 Kubernetes API 更新 Deployment 中的镜像标签，将新构建的镜像应用到 Kubernetes 集群。
+      - 通过 Kubernetes API 重启指定的 Deployment，使新的镜像生效。
    - 第三方部署：
       - 通过 GitLab CI 使用 curl 命令调用 GitLab API，触发其他项目的流水线或者执行跨项目部署。
 

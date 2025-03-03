@@ -12,8 +12,42 @@ include: "/project/dolphin/variables.yaml"
   extends: [ .variables ]
   script:
     - docker pull $IMAGE_ADDRESS
-    - docker rm -f $IMAGE_NAME || true
-    - docker run -d --name $IMAGE_NAME --restart always -p $IMAGE_PORT $IMAGE_ADDRESS
+    - docker rm -f $PROJECT_NAME || true
+    - docker run -d --name $PROJECT_NAME --restart always -p $IMAGE_PORT $IMAGE_ADDRESS
+
+.k8s-update-image-tag:
+  stage: k8s-update-image-tag
+  tags:
+    - $CD_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "gray"'
+  extends: [ .variables ]
+  script:
+    - |
+      curl -X PUT -H "content-type: application/json" \
+           -H "Cookie: KuboardUsername=$K8S_USERNAME; KuboardAccessKey=$K8S_ACCESS_KEY" \
+           -d "{\"kind\":\"deployments\",\"namespace\":\"$K8S_NAMESPACE\",\"name\":\"$K8S_DEPLOYMENT_NAME\",\"images\":{\"$IMAGE_NAME\":\"$IMAGE_ADDRESS\"}}" \
+           "$K8S_UPDATE_IMAGE_TAG_URL"
+
+.k8s-restart-workload:
+  stage: k8s-restart-workload
+  tags:
+    - $CD_TAG
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH == "master"'
+    - if: '$CI_COMMIT_BRANCH == "develop"'
+    - if: '$CI_COMMIT_BRANCH == "gray"'
+  extends: [ .variables ]
+  script:
+    - |
+      curl -X PUT -H "Content-Type: application/yaml" \
+           -H "Cookie: KuboardUsername=$K8S_USERNAME; KuboardAccessKey=$K8S_ACCESS_KEY" \
+           -d "{\"kind\":\"deployments\",\"namespace\":\"$K8S_NAMESPACE\",\"name\":\"$K8S_DEPLOYMENT_NAME\"}" \
+           "$K8S_RESTART_WORK_LOAD_URL"
 
 .third-party-deploy:
   stage: third-party-deploy
@@ -26,4 +60,4 @@ include: "/project/dolphin/variables.yaml"
     - if: '$CI_COMMIT_BRANCH == "gray"'
   extends: [ .variables ]
   script:
-    - curl -X POST --fail -F token=$PIPELINE_TRIGGER_TOKEN -F ref=main -F variables[BRANCH]=$CI_COMMIT_BRANCH -F variables[NAME]=$IMAGE_NAME -F variables[IMAGE_ADDRESS]=$IMAGE_ADDRESS $PIPELINE_TRIGGER_URL
+    - curl -X POST --fail -F token=$PIPELINE_TRIGGER_TOKEN -F ref=main -F variables[PROJECT_NAME]=$PROJECT_NAME -F variables[BRANCH]=$CI_COMMIT_BRANCH -F variables[IMAGE_ADDRESS]=$IMAGE_ADDRESS $PIPELINE_TRIGGER_URL
